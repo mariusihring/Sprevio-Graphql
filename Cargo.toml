@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+actix-web = "4.8.0"
 async-graphql = { version = "7.0.6", features = ["playground"] }
-async-graphql-rocket = "7.0.6"
-rocket = { version = "0.5.1", features = ["secrets"] }
+async-graphql-actix-web = "7.0.6"
+clerk-rs = { version = "0.3.1", features = ["actix"] }
+
