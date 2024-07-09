@@ -1,0 +1,9 @@
+[package]
+name = "sprevio_rust_api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-graphql = { version = "7.0.6", features = ["playground"] }
+async-graphql-rocket = "7.0.6"
+rocket = { version = "0.5.1", features = ["secrets"] }
