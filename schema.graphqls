@@ -1,0 +1,50 @@
+
+type CsvColumn {
+	row: String!
+	rowType: String!
+}
+
+type Expense {
+	id: String!
+	date: String!
+	otherParty: String!
+	amount: Float!
+	reason: String!
+	saldoAfter: Float!
+}
+
+
+
+
+input MapProviderInput {
+	providerName: String!
+	date: String!
+	otherParty: String!
+	amount: String!
+	reason: String!
+	saldoAfter: String!
+}
+
+type Mutation {
+	createProvider(id: String!, file: Upload!): [CsvColumn!]!
+	mapStatementFields(input: MapProviderInput!): Boolean!
+	uploadImage(file: Upload!): String
+}
+
+type Query {
+	expense(provider: String!, id: String!): Expense
+	expenses(provider: String!): [Expense!]
+	provider(id: String!): Expense
+	providers: [Expense!]
+}
+
+
+scalar Upload
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @specifiedBy(url: String!) on SCALAR
+schema {
+	query: Query
+	mutation: Mutation
+}

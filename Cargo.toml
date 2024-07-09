@@ -8,4 +8,6 @@ actix-web = "4.8.0"
 async-graphql = { version = "7.0.6", features = ["playground"] }
 async-graphql-actix-web = "7.0.6"
 clerk-rs = { version = "0.3.1", features = ["actix"] }
+serde = { version = "1.0.204" , features = ["derive"]}
+surrealdb = "1.5.3"
 

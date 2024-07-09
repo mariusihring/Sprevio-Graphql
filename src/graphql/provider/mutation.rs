@@ -1,6 +1,6 @@
 use async_graphql::*;
 
-use crate::types::provider::{MapProviderInput, Provider};
+use crate::types::provider::{CsvColumn, MapProviderInput, Provider};
 
 #[derive(Default)]
 pub struct ProviderMutation;
@@ -8,16 +8,11 @@ pub struct ProviderMutation;
 
 #[Object]
 impl ProviderMutation {
-    async fn create_provider(&self, id: String, file: Upload) -> Option<Provider> {
-        Some(Provider{
-            id,
-            provider_name: String::from("Test")
-        })
+    async fn create_provider(&self, id: String, file: Upload) -> Vec<CsvColumn> {
+        Vec::new()
     }
 
     async fn map_statement_fields(&self, input: MapProviderInput) -> bool {
         true
     }
-
-
 }

@@ -1,16 +1,18 @@
-
-use clerk_rs::{validators::actix::ClerkMiddleware, ClerkConfiguration};
+use std::fs::File;
+use std::io::Write;
 use actix_web::{guard, web, web::Data, App, HttpResponse, HttpServer};
 use async_graphql::{
     http::{GraphiQLSource, MultipartOptions},
     EmptySubscription, Schema,
 };
+use surrealdb::engine::remote::ws::Ws;
+use surrealdb::Surreal;
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use async_graphql::*;
 mod graphql;
 mod types;
 
-use graphql::{Query, Mutation, Subscription};
+use graphql::{Query, Mutation};
 
 
 
@@ -30,10 +32,17 @@ async fn gql_playgound() -> HttpResponse {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let db = Surreal::new::<Ws>("127.0.0.1:8000").await.expect("failed to connect to surrealdb");
+
     let schema = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
-        // .data(Storage::default())
+        .data(db)
         .finish();
 
+
+    // Export SDL
+    let mut file = File::create("schema.graphqls")?;
+    file.write_all(&schema.sdl().as_bytes())?;
 
 
     println!("GraphiQL IDE: http://localhost:8000");

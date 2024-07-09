@@ -15,3 +15,9 @@ pub struct Provider {
     pub id: String,
     pub provider_name: String,
 }
+
+#[derive(SimpleObject)]
+pub struct CsvColumn {
+    pub row: String,
+    pub row_type: String,
+}
