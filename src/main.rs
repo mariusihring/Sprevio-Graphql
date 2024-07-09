@@ -48,7 +48,7 @@ async fn main() -> std::io::Result<()> {
     println!("GraphiQL IDE: http://localhost:8000");
 
     HttpServer::new(move || {
-        // let config: ClerkConfiguration = ClerkConfiguration::new(None, None, Some("pk_test_c3BsZW5kaWQtZG9ua2V5LTE2LmNsZXJrLmFjY291bnRzLmRldiQ".to_string()), None);
+        // let config: ClerkConfiguration = ClerkConfiguration::new(None, None, "".to_string()), None);
         App::new()
             //.wrap(ClerkMiddleware::new(config, None, true))
             .app_data(Data::new(schema.clone()))
