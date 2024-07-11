@@ -1,3 +1,4 @@
+use crate::database::SurrealDbActions;
 use crate::types::auth::AuthParams;
 use crate::{DbConnection, SurrealUserTokens};
 use async_graphql::*;
@@ -6,41 +7,26 @@ use surrealdb::opt::auth::{Namespace, Root};
 //TODO: errorhandling returning the error when db stuff fails
 #[derive(Default)]
 pub struct SignUpMutation;
+
 #[Object]
 impl SignUpMutation {
     async fn signup(&self, ctx: &Context<'_>, input: AuthParams) -> Option<bool> {
         let db = ctx.data::<DbConnection>().ok()?;
         let user_tokens = ctx.data::<SurrealUserTokens>().ok()?;
-        db.use_ns(input.user_hash.clone())
-            .await
-            .expect("Couldnt switch namespace");
-        db.signin(Root {
-            username: "root",
-            password: "root",
-        })
-        .await
-        .expect("failed to sign in as root user");
-        db.query(format!(
-            r#"DEFINE USER {} ON NAMESPACE PASSWORD "{}" ROLES OWNER"#,
-            input.name, input.password
-        ))
-        .await
-        .expect("couldnt create user");
-        let jwt = db
-            .signin(Namespace {
-                username: &input.name,
-                password: &input.password,
-                namespace: &input.user_hash,
-            })
-            .await
-            .expect("Failed to sign in as namespace user");
 
-        let token = jwt.as_insecure_token();
+        let jwt = SurrealDbActions::signup_new_user(
+            db,
+            input.password,
+            input.name,
+            input.user_hash.clone(),
+        )
+        .await
+        .expect("failed to create new user");
+
         user_tokens
             .lock()
             .expect("failed to lock user tokens")
-            .insert(input.user_hash, token.to_string());
-        println!("{:?}", user_tokens);
+            .insert(input.user_hash, jwt);
 
         Some(true)
     }

@@ -11,6 +11,7 @@ use std::fs::File;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 use surrealdb::engine::remote::ws::{Client, Ws};
+use surrealdb::opt::auth::Jwt;
 use surrealdb::Surreal;
 
 mod database;
@@ -20,7 +21,7 @@ mod types;
 use graphql::{Mutation, Query};
 
 type DbConnection = Surreal<Client>;
-type SurrealUserTokens = Arc<Mutex<BTreeMap<String, String>>>;
+type SurrealUserTokens = Arc<Mutex<BTreeMap<String, Jwt>>>;
 
 struct GraphQlContext {
     db: DbConnection,
@@ -46,7 +47,7 @@ async fn main() -> std::io::Result<()> {
     let db: DbConnection = Surreal::new::<Ws>("127.0.0.1:8000")
         .await
         .expect("Failed to connect to surreal_Db");
-    db.use_db("test").await.expect("failed to use db test");
+    db.use_db("sprevio").await.expect("failed to use db test");
     let schema = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
         .extension(extensions::Logger)
         .data(db)

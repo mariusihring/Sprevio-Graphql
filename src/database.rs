@@ -1,5 +1,5 @@
 use surrealdb::engine::remote::ws::Client;
-use surrealdb::opt::auth::{Jwt, Namespace};
+use surrealdb::opt::auth::{Jwt, Namespace, Root};
 use surrealdb::Surreal;
 
 pub struct SurrealDbActions;
@@ -35,11 +35,32 @@ impl SurrealDbActions {
     }
 
     pub async fn signup_new_user(
-        db: Surreal<Client>,
-        namespace: String,
+        db: &Surreal<Client>,
         password: String,
         username: String,
-    ) -> Result<Jwt, std::io::Error> {
-        todo!()
+        userhash: String,
+    ) -> Result<Jwt, surrealdb::Error> {
+        db.use_ns(userhash.clone())
+            .await
+            .expect("Couldnt switch namespace");
+        db.signin(Root {
+            username: "root",
+            password: "root",
+        })
+        .await
+        .expect("failed to sign in as root user");
+        db.query(format!(
+            r#"DEFINE USER {} ON NAMESPACE PASSWORD "{}" ROLES OWNER"#,
+            &username, &password
+        ))
+        .await
+        .expect("couldnt create user");
+
+        db.signin(Namespace {
+            username: &username,
+            password: &password,
+            namespace: &userhash,
+        })
+        .await
     }
 }
