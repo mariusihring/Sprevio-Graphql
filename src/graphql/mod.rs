@@ -2,6 +2,7 @@ use async_graphql::*;
 mod expenses;
 mod provider;
 mod images;
+mod auth;
 
 use expenses::query::ExpensesQuery;
 use crate::graphql::images::ImageMutation;
