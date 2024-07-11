@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
-use std::iter::Map;
 use std::sync::{Arc, Mutex};
 use actix_web::{guard, web, web::Data, App, HttpResponse, HttpServer};
 use async_graphql::{
@@ -11,8 +10,8 @@ use async_graphql::{
 use surrealdb::Surreal;
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use async_graphql::*;
-use surrealdb::engine::any;
 use surrealdb::engine::remote::ws::{Client, Ws};
+use env_logger;
 
 mod graphql;
 mod types;
@@ -49,10 +48,13 @@ async fn gql_playgound() -> HttpResponse {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "async-graphql=info");
+    env_logger::init();
     let user_tokens: SurrealUserTokens = Arc::new(Mutex::new(BTreeMap::new()));
     let db: DbConnection = Surreal::new::<Ws>("127.0.0.1:8000").await.expect("Failed to connect to surreal_Db");
     db.use_db("test").await.expect("failed to use db test");
     let schema = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+        .extension(extensions::Logger)
         .data(db)
         .data(user_tokens)
         .finish();

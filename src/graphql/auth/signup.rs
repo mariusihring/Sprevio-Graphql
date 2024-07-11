@@ -1,6 +1,5 @@
 use async_graphql::*;
-use serde::Serialize;
-use surrealdb::opt::auth::{Namespace, Root, Scope};
+use surrealdb::opt::auth::{Namespace, Root};
 use crate::{DbConnection, SurrealUserTokens};
 use crate::types::auth::AuthParams;
 
