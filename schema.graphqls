@@ -1,3 +1,9 @@
+input AuthParams {
+	name: String!
+	password: String!
+	userHash: String!
+}
+
 
 type CsvColumn {
 	row: String!
@@ -29,6 +35,7 @@ type Mutation {
 	createProvider(id: String!, file: Upload!): [CsvColumn!]!
 	mapStatementFields(input: MapProviderInput!): Boolean!
 	uploadImage(file: Upload!): String
+	signup(input: AuthParams!): Boolean
 }
 
 type Query {

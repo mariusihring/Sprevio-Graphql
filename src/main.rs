@@ -1,24 +1,33 @@
-use std::fs::File;
-use std::io::Write;
 use actix_web::{guard, web, web::Data, App, HttpResponse, HttpServer};
+use async_graphql::*;
 use async_graphql::{
     http::{GraphiQLSource, MultipartOptions},
     EmptySubscription, Schema,
 };
-use surrealdb::engine::remote::ws::Ws;
-use surrealdb::Surreal;
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
-use async_graphql::*;
+use env_logger;
+use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::Write;
+use std::sync::{Arc, Mutex};
+use surrealdb::engine::remote::ws::{Client, Ws};
+use surrealdb::opt::auth::Jwt;
+use surrealdb::Surreal;
+
+mod database;
 mod graphql;
 mod types;
 
-use graphql::{Query, Mutation};
+use graphql::{Mutation, Query};
 
+type DbConnection = Surreal<Client>;
+type SurrealUserTokens = Arc<Mutex<BTreeMap<String, Jwt>>>;
 
+struct GraphQlContext {
+    db: DbConnection,
+}
 
 pub type SprevioSchema = Schema<Query, Mutation, EmptySubscription>;
-
-
 
 async fn index(schema: web::Data<SprevioSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -32,20 +41,24 @@ async fn gql_playgound() -> HttpResponse {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
-    let db = Surreal::new::<Ws>("127.0.0.1:8000").await.expect("failed to connect to surrealdb");
-
+    std::env::set_var("RUST_LOG", "async-graphql=info");
+    env_logger::init();
+    let user_tokens: SurrealUserTokens = Arc::new(Mutex::new(BTreeMap::new()));
+    let db: DbConnection = Surreal::new::<Ws>("127.0.0.1:8000")
+        .await
+        .expect("Failed to connect to surreal_Db");
+    db.use_db("sprevio").await.expect("failed to use db test");
     let schema = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+        .extension(extensions::Logger)
         .data(db)
+        .data(user_tokens)
         .finish();
-
 
     // Export SDL
     let mut file = File::create("schema.graphqls")?;
     file.write_all(&schema.sdl().as_bytes())?;
 
-
-    println!("GraphiQL IDE: http://localhost:8000");
+    println!("GraphiQL IDE: http://localhost:8001");
 
     HttpServer::new(move || {
         // let config: ClerkConfiguration = ClerkConfiguration::new(None, None, "".to_string()), None);
@@ -60,7 +73,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(web::resource("/").guard(guard::Get()).to(gql_playgound))
     })
-        .bind("127.0.0.1:8000")?
-        .run()
-        .await
+    .bind("127.0.0.1:8001")?
+    .run()
+    .await
 }

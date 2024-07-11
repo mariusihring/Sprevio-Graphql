@@ -1,13 +1,21 @@
-use async_graphql::*;
+use crate::database::SurrealDbActions;
 use crate::types::expense::Expense;
+use crate::DbConnection;
+use async_graphql::*;
+use serde::Serialize;
+use surrealdb::opt::auth::Root;
 
 #[derive(Default)]
 pub struct ExpensesQuery;
 
-
+#[derive(Serialize)]
+struct Name {
+    first: String,
+    last: String,
+}
 #[Object]
 impl ExpensesQuery {
-    async fn expense(&self, provider: String, id: String) -> Option<Expense> {
+    async fn expense(&self, ctx: &Context<'_>, provider: String, id: String) -> Option<Expense> {
         Some(Expense {
             id,
             date: "123131".to_string(),

@@ -7,5 +7,5 @@ pub struct Expense {
     pub other_party: String,
     pub amount: f64,
     pub reason: String,
-    pub saldo_after: f64
+    pub saldo_after: f64,
 }

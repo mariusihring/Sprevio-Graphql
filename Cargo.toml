@@ -5,9 +5,11 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.8.0"
-async-graphql = { version = "7.0.6", features = ["playground"] }
+async-graphql = { version = "7.0.6", features = ["playground", "log"] }
 async-graphql-actix-web = "7.0.6"
 clerk-rs = { version = "0.3.1", features = ["actix"] }
 serde = { version = "1.0.204" , features = ["derive"]}
-surrealdb = "1.5.3"
+surrealdb = "1.5.4"
+log = "0.4"
+env_logger = "0.11.3"
 
