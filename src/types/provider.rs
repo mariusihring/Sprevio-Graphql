@@ -7,7 +7,7 @@ pub struct MapProviderInput {
     pub other_party: String,
     pub amount: String,
     pub reason: String,
-    pub saldo_after: String
+    pub saldo_after: String,
 }
 
 #[derive(SimpleObject)]

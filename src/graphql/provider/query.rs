@@ -1,9 +1,8 @@
-use async_graphql::*;
 use crate::types::expense::Expense;
+use async_graphql::*;
 
 #[derive(Default)]
 pub struct ProviderQuery;
-
 
 #[Object]
 impl ProviderQuery {
